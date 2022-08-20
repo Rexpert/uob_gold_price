@@ -4,8 +4,8 @@ from io import StringIO
 import pandas as pd
 import requests
 
-premium_url = r'.\data\premium_price.csv'
-basic_url = r'.\data\basic_price.csv'
+premium_url = r'./data/premium_price.csv'
+basic_url = r'./data/basic_price.csv'
 
 
 def read_data():
