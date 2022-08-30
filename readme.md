@@ -14,7 +14,7 @@ This repo logs the gold price offered by UOB © [United Overseas Bank (Malaysia)
 - The scrapper are schedule as follows:
   - every weekday: every hour 1000-1600 UTC+8
   - every weekend: 0800 UTC+8
-- Due to unstable schedule experienced with Github Action Scheduler, this scraping job are schedule through [https://cron-job.org](cron-job.org).
+- Due to unstable schedule experienced with Github Action Scheduler, this scraping job are schedule through [cron-job.org](https://cron-job.org).
 
 ## Usage
 - The pricing data is located in [`basic_price.csv`](data/basic_price.csv) and [`premium_price.csv`](data/premium_price.csv)
