@@ -23,15 +23,21 @@ def read_data():
 
 def make_df(txt, item, old, url):
     f = StringIO(txt)
+    now = pd.Timestamp.now(tz='Asia/Kuala_Lumpur')
     new = (
         pd
         .read_csv(f)
         .query('ITEM == @item')
         .loc[:, ['TIME', 'SELLING', 'BUYING']]
-        .assign(TIME=lambda x: pd.to_datetime(x.TIME), scrape=pd.Timestamp.now(tz='Asia/Kuala_Lumpur'))
+        .assign(TIME=lambda x: pd.to_datetime(x.TIME), scrape=now)
     )
-    new = pd.concat([old, new], ignore_index=True)
-    new.to_csv(url, index=False)
+    old.TIME = pd.to_datetime(old.TIME)
+    if old.iloc[-1].TIME == new.iloc[0].TIME:
+        old.scrape.iat[-1] = now
+        old.to_csv(url, index=False)
+    else:
+        new = pd.concat([old, new], ignore_index=True)
+        new.to_csv(url, index=False)
 
 
 if __name__ =='__main__':
