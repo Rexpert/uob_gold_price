@@ -14,7 +14,7 @@ This repo logs the gold price offered by UOB © [United Overseas Bank (Malaysia)
 - The scrapper are schedule as follows:
   - every weekday: every hour 1000-1600 UTC+8
   - every weekend: 0800 UTC+8
-- Due to unstable schedule experienced with Github Action Scheduler, this scraping job are schedule through [cron-job.org](cron-job.org).
+- Due to unstable schedule experienced with Github Action Scheduler, this scraping job are schedule through [https://cron-job.org](cron-job.org).
 
 ## Usage
 - The pricing data is located in [`basic_price.csv`](data/basic_price.csv) and [`premium_price.csv`](data/premium_price.csv)
@@ -25,7 +25,10 @@ This repo logs the gold price offered by UOB © [United Overseas Bank (Malaysia)
   |BUYING |The Bank Buying Price (How much you sell the gold at) |
   |scrape |The last timestamp before scrapper detect data changes|
 
+## TODO
+- Add a static github page to visualize the scraped data.
+
 ## Disclaimer
 - I do not own/create the data in UOB website.
 - I do not represent UOB and not responsible for the accuracy of the pricing data in this repo. 
-- I allow everyone to use the logged data in this repo, but the responsibility for the usage of data shall bound to themself.
+- Everyone are welcome to use the logged data in this repo, but the responsibility for the usage of data shall bound to themself, including any trading gain/loss in GIA. 
