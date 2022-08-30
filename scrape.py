@@ -21,9 +21,10 @@ def read_data():
     return premium, basic
 
 
-def make_df(txt, item, old, url):
+def make_df(txt, item, old):
     f = StringIO(txt)
     now = pd.Timestamp.now(tz='Asia/Kuala_Lumpur')
+    # Create new data
     new = (
         pd
         .read_csv(f)
@@ -31,17 +32,21 @@ def make_df(txt, item, old, url):
         .loc[:, ['TIME', 'SELLING', 'BUYING']]
         .assign(TIME=lambda x: pd.to_datetime(x.TIME), scrape=now)
     )
-    old.TIME = pd.to_datetime(old.TIME)
-    if old.iloc[-1].TIME == new.iloc[0].TIME:
-        old.scrape.iat[-1] = now
-        old.to_csv(url, index=False)
-    else:
-        new = pd.concat([old, new], ignore_index=True)
-        new.to_csv(url, index=False)
+    # Clean df
+    new = (
+        pd
+        .concat([old, new], ignore_index=True)
+        .assign(TIME=lambda x: pd.to_datetime(x.TIME))
+        .groupby('TIME')
+        .last()
+    )
+    return new
 
 
-if __name__ =='__main__':
+if __name__ == '__main__':
     premium, basic = read_data()
     res = requests.get(r'https://www.uob.com.my/wsm/stayinformed.do?path=gia')
-    basic_new = make_df(res.text, 'GOLD SAVINGS ACCOUNT', basic, basic_url)
-    premium_new = make_df(res.text, 'PREMIER GOLD ACCOUNT', premium, premium_url)
+    basic_new = make_df(res.text, 'GOLD SAVINGS ACCOUNT', basic)
+    basic_new.to_csv(basic_url)
+    premium_new = make_df(res.text, 'PREMIER GOLD ACCOUNT', premium)
+    premium_new.to_csv(premium_url)
