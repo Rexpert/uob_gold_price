@@ -25,8 +25,8 @@ This repo logs the gold price offered by UOB © [United Overseas Bank (Malaysia)
   |BUYING |The Bank Buying Price (How much you sell the gold at) |
   |scrape |The last timestamp before scrapper detect data changes|
 
-## TODO
-- Add a static github page to visualize the scraped data.
+## Visualization
+- Click [here](https://rexpert.github.io/uob_gold_price/visualization.html) to visualize the GIA prices. 
 
 ## Disclaimer
 - I do not own/create the data in UOB website.
