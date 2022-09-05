@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Gold Price Visualization</title>
+    <!-- <script src="static/node_modules/echarts/dist/echarts.js"></script>
+    <script src="static/node_modules/jquery/dist/jquery.js"></script>
+    <script src="static/node_modules/jquery-csv/src/jquery.csv.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3/dist/echarts.js" integrity="sha256-E5b0O4AhPTlxRxD4SNUVrMx7/RQDnV2PjWpPIjWoXd4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-csv@1.0.21/src/jquery.csv.min.js" integrity="sha256-zGo0JbZ5Sn6wU76MyVL0TrUZUq5GLXaFnMQCe/hSwVI=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id="basic_chart" style="width: 100%;height:45vh;"></div>
+    <div id="premium_chart" style="width: 100%;height:45vh;"></div>
+    <script type="text/javascript">
+        const basic_chart = echarts.init(document.getElementById('basic_chart'));
+        const premium_chart = echarts.init(document.getElementById('premium_chart'));
+
+        let option = {
+            title: {
+                text: ''
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {},
+            xAxis: {
+                type: 'time',
+            },
+            yAxis: {
+                type: 'value',
+                min: 'dataMin'
+            },
+            dataset: {
+                source: []
+            },
+            series: [
+                {
+                    name: 'Bank Selling',
+                    type: 'line',
+                    step: 'end',
+                    showSymbol: false,
+                    encode: {
+                        x: 'TIME',
+                        y: 'SELLING',
+                    }
+                }, {
+                    name: 'Bank Buying',
+                    type: 'line',
+                    step: 'end',
+                    showSymbol: false,
+                    encode: {
+                        x: 'TIME',
+                        y: 'BUYING',
+                    }
+                }
+            ]
+        };
+
+        $.get('data/basic_price.csv', (res) => {
+            const data = $.csv.toArrays(res);
+            option.title.text = 'Gold Savings Account';
+            option.dataset.source = data;
+            basic_chart.setOption(option);
+        })
+
+        $.get('data/premium_price.csv', (res) => {
+            const data = $.csv.toArrays(res);
+            option.title.text = 'Premier Gold Account';
+            option.dataset.source = data;
+            premium_chart.setOption(option);
+        })
+    </script>
+</body>
+
+</html>
