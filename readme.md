@@ -13,7 +13,7 @@ This repo logs the gold price offered by UOB © [United Overseas Bank (Malaysia)
 - The price is scrapped from [GIA Pricing Page](https://www.uob.com.my/online-rates/gold-prices.page).
 - The scrapper are schedule as follows:
   - every weekday: every hour 1000-1600 UTC+8
-  - every weekend: 0800 UTC+8
+  - every weekend: 0900 UTC+8
 - Due to unstable schedule experienced with Github Action Scheduler, this scraping job are schedule through [cron-job.org](https://cron-job.org).
 
 ## Usage
