@@ -32,3 +32,5 @@ This repo logs the gold price offered by UOB © [United Overseas Bank (Malaysia)
 - I do not own/create the data in UOB website.
 - I do not represent UOB and not responsible for the accuracy of the pricing data in this repo. 
 - Everyone are welcome to use the logged data in this repo, but the responsibility for the usage of data shall bound to themself, including any trading gain/loss in GIA. 
+
+MIT &copy; [Rexpert](https://github.com/Rexpert) 2022
