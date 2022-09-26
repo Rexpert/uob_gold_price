@@ -45,16 +45,17 @@ def make_df(txt, item, old):
 def compare(crit, timeframe, basic_price_now, premium_price_now, basic_price_crit):
     message = ''
     if (crit == 'min') and (basic_price_now < basic_price_crit):
-        message = f'Bank Selling Price is now minimum in {timeframe}: GSA-RM{basic_price_now:.2f}/gm, PGA-RM{premium_price_now:.0f}/kg'
+        message = f'Testing Message: Bank Selling Price is now minimum in {timeframe}: GSA-RM{basic_price_now:.2f}/gm, PGA-RM{premium_price_now:.0f}/kg'
     elif (crit == 'max') and (basic_price_now > basic_price_crit):
-        message = f'Bank Buying Price is now maximum in {timeframe}: GSA-RM{basic_price_now:.2f}/gm, PGA-RM{premium_price_now:.0f}/kg'
+        message = f'Testing Message: Bank Buying Price is now maximum in {timeframe}: GSA-RM{basic_price_now:.2f}/gm, PGA-RM{premium_price_now:.0f}/kg'
     return message
 
 
 def alert(basic, basic_new, premium_new):
     basic = basic.assign(TIME=lambda x: pd.to_datetime(x.TIME))
     if basic.TIME.iloc[-1] != basic_new.TIME.iloc[-1]:
-        basic_price_now = basic_new.SELLING.iloc[-1]
+        # basic_price_now = basic_new.SELLING.iloc[-1]
+        basic_price_now = 0
         premium_price_now = premium_new.SELLING.iloc[-1]
         min_messages = []
         time_ago = pd.Timestamp.now() - pd.DateOffset(months=1)
