@@ -23,6 +23,14 @@ jobs:
       - name: run Python
         run: python scrape.py
         
+      - name: add comment
+        if: env.MESSAGE != ''
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          issue-number: 3
+          body: ${{ env.MESSAGE }}
+          
       - name: Auto Commit
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
