@@ -36,7 +36,7 @@ def make_df(txt, item, old):
         pd
         .concat([old, new], ignore_index=True)
         .assign(TIME=lambda x: pd.to_datetime(x.TIME))
-        .groupby('TIME')
+        .groupby('TIME', as_index=False)
         .last()
     )
     return new
@@ -54,50 +54,50 @@ def compare(crit, timeframe, basic_price_now, premium_price_now, basic_price_cri
 def alert(basic, basic_new, premium_new):
     basic = basic.assign(TIME=lambda x: pd.to_datetime(x.TIME))
     if basic.TIME.iloc[-1] != basic_new.TIME.iloc[-1]:
-        # basic_price_now = basic_new.SELLING.iloc[-1]
-        basic_price_now = 0
+        basic_price_now = basic_new.SELLING.iloc[-1]
         premium_price_now = premium_new.SELLING.iloc[-1]
         min_messages = []
         time_ago = pd.Timestamp.now() - pd.DateOffset(months=1)
-        min_messages.append(compare('min', '1-month ago', basic_price_now, premium_price_now, basic.query('TIME <= @time_ago').SELLING.min()))
+        min_messages.append(compare('min', '1-month ago', basic_price_now, premium_price_now, basic.query('TIME >= @time_ago').SELLING.min()))
         time_ago = pd.Timestamp.now() - pd.DateOffset(months=3)
-        min_messages.append(compare('min', '3-month ago', basic_price_now, premium_price_now, basic.query('TIME <= @time_ago').SELLING.min()))
+        min_messages.append(compare('min', '3-month ago', basic_price_now, premium_price_now, basic.query('TIME >= @time_ago').SELLING.min()))
         time_ago = pd.Timestamp.now() - pd.DateOffset(months=6)
-        min_messages.append(compare('min', '6-month ago', basic_price_now, premium_price_now, basic.query('TIME <= @time_ago').SELLING.min()))
+        min_messages.append(compare('min', '6-month ago', basic_price_now, premium_price_now, basic.query('TIME >= @time_ago').SELLING.min()))
         time_ago = pd.Timestamp.now() - pd.DateOffset(years=1)
-        min_messages.append(compare('min', '1-year ago', basic_price_now, premium_price_now, basic.query('TIME <= @time_ago').SELLING.min()))
+        min_messages.append(compare('min', '1-year ago', basic_price_now, premium_price_now, basic.query('TIME >= @time_ago').SELLING.min()))
         min_messages.append(compare('min', 'all-time ever', basic_price_now, premium_price_now, basic.SELLING.min()))
 
         basic_price_now = basic_new.BUYING.iloc[-1]
         premium_price_now = premium_new.BUYING.iloc[-1]
         max_messages = []
         time_ago = pd.Timestamp.now() - pd.DateOffset(months=1)
-        max_messages.append(compare('max', '1-month ago', basic_price_now, premium_price_now, basic.query('TIME <= @time_ago').BUYING.max()))
+        max_messages.append(compare('max', '1-month ago', basic_price_now, premium_price_now, basic.query('TIME >= @time_ago').BUYING.max()))
         time_ago = pd.Timestamp.now() - pd.DateOffset(months=3)
-        max_messages.append(compare('max', '3-month ago', basic_price_now, premium_price_now, basic.query('TIME <= @time_ago').BUYING.max()))
+        max_messages.append(compare('max', '3-month ago', basic_price_now, premium_price_now, basic.query('TIME >= @time_ago').BUYING.max()))
         time_ago = pd.Timestamp.now() - pd.DateOffset(months=6)
-        max_messages.append(compare('max', '6-month ago', basic_price_now, premium_price_now, basic.query('TIME <= @time_ago').BUYING.max()))
+        max_messages.append(compare('max', '6-month ago', basic_price_now, premium_price_now, basic.query('TIME >= @time_ago').BUYING.max()))
         time_ago = pd.Timestamp.now() - pd.DateOffset(years=1)
-        max_messages.append(compare('max', '1-year ago', basic_price_now, premium_price_now, basic.query('TIME <= @time_ago').BUYING.max()))
+        max_messages.append(compare('max', '1-year ago', basic_price_now, premium_price_now, basic.query('TIME >= @time_ago').BUYING.max()))
         max_messages.append(compare('max', 'all-time ever', basic_price_now, premium_price_now, basic.BUYING.max()))
         
-        min_message_id = min_messages.index('') - 1
-        max_message_id = max_messages.index('') - 1
-        if min_message_id > 0:
+        min_message_id = min_messages.index('') - 1 if '' in min_messages else 0
+        max_message_id = max_messages.index('') - 1 if '' in max_messages else 0
+        message = ''
+        if min_message_id >= 0:
             message = min_messages[min_message_id-1]
-        elif max_message_id > 0:
+        elif max_message_id >= 0:
             message = max_messages[max_message_id-1]
-        if message:
+        if message != '':
             env_file = os.getenv('GITHUB_ENV')
             with open(env_file, 'a') as f:
-                f.write(f'MESSAGE={message}')
+                f.write(f'MESSAGE="{message}"')
 
 
 if __name__ == '__main__':
     premium, basic = read_data()
     res = requests.get(r'https://www.uob.com.my/wsm/stayinformed.do?path=gia')
     basic_new = make_df(res.text, 'GOLD SAVINGS ACCOUNT', basic)
-    basic_new.to_csv(basic_url)
+    basic_new.to_csv(basic_url, index=False)
     premium_new = make_df(res.text, 'PREMIER GOLD ACCOUNT', premium)
-    premium_new.to_csv(premium_url)
+    premium_new.to_csv(premium_url, index=False)
     alert(basic, basic_new, premium_new)
