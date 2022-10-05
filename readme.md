@@ -1,7 +1,7 @@
-# UOB Gold Price
+# :money_with_wings: UOB Gold Price
 This repo logs the gold price offered by UOB © [United Overseas Bank (Malaysia) Bhd](https://www.uob.com.my/). 
 
-## Info
+## :bulb: Info
 - There are 2 types of Gold Investment Account (GIA):
   - Gold Savings Account (GSA):
     - opening purchase: 20gm
@@ -16,7 +16,7 @@ This repo logs the gold price offered by UOB © [United Overseas Bank (Malaysia)
   - every weekend: 0900 UTC+8
 - Due to unstable schedule experienced with Github Action Scheduler, this scraping job are schedule through [cron-job.org](https://cron-job.org).
 
-## Usage
+## :bricks: Usage
 - The pricing data is located in [`basic_price.csv`](data/basic_price.csv) and [`premium_price.csv`](data/premium_price.csv)
 - Data description:
   | Column  | Description                                            |
@@ -65,17 +65,17 @@ This repo logs the gold price offered by UOB © [United Overseas Bank (Malaysia)
   # > 2022-09-04    248.1   244.0
   ```
 
-## Visualization
+## :chart_with_upwards_trend: Visualization
 - Click [here](https://rexpert.github.io/uob_gold_price/visualization.html) to visualize the GIA prices. 
 
-## Price Alert
+## :rotating_light: Price Alert
 - Subscribe to [issue #3](https://github.com/Rexpert/uob_gold_price/issues/3) to get E-Mail Notifications for the best timing to trade GIA. 
 - Best timing means:
   - Lowest Bank Selling Price (In which you can buy gold at a lower cost)
   - Highest Bank Buying Price (In which you can sell gold at a higher profit)
 - Currently the alert is triggered when best price happens within 1 month / 3 months / 6 months / 1 year / all time.
 
-## Disclaimer
+## :page_facing_up: Disclaimer
 - I do not own/create the data in UOB website.
 - I do not represent UOB and not responsible for the accuracy of the pricing data in this repo. 
 - Everyone are welcome to use the logged data in this repo, but the responsibility for the usage of data shall bound to themself, including any trading gain/loss in GIA. 
