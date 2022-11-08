@@ -30,7 +30,7 @@ def make_df(txt, item, old):
             .read_csv(StringIO(txt))
         )
     except pd.errors.ParserError as e:
-        raise e(txt)
+        raise ValueError(txt)
     new = (
         new
         .query('ITEM == @item')
