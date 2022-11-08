@@ -24,9 +24,15 @@ def read_data():
 def make_df(txt, item, old):
     now = pd.Timestamp.now(tz='Asia/Kuala_Lumpur')
     # Create new data
+    try:
+        new = (
+            pd
+            .read_csv(StringIO(txt))
+        )
+    except pd.errors.ParserError as e:
+        raise e(txt)
     new = (
-        pd
-        .read_csv(StringIO(txt))
+        new
         .query('ITEM == @item')
         .loc[:, ['TIME', 'SELLING', 'BUYING']]
         .assign(TIME=lambda x: pd.to_datetime(x.TIME, format=r"%d/%m/%Y %H:%M"), scrape=now)
