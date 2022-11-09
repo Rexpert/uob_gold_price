@@ -21,6 +21,16 @@ def read_data():
     return premium, basic
 
 
+def get_html():
+    a = []
+    for _ in range(10):
+        res = requests.get(r'https://www.uob.com.my/wsm/stayinformed.do?path=gia')
+        if res.status_code == 200:
+            return res.text
+        a.append(res.status_code)
+    raise ValueError(a, res.headers)
+
+
 def make_df(txt, item, old):
     now = pd.Timestamp.now(tz='Asia/Kuala_Lumpur')
     # Create new data
@@ -101,9 +111,10 @@ def alert(basic, basic_new, premium_new):
 
 if __name__ == '__main__':
     premium, basic = read_data()
-    res = requests.get(r'https://www.uob.com.my/wsm/stayinformed.do?path=gia')
-    basic_new = make_df(res.text, 'GOLD SAVINGS ACCOUNT', basic)
+    txt = get_html()
+    # res = requests.get(r'https://www.uob.com.my/wsm/stayinformed.do?path=gia')
+    basic_new = make_df(txt, 'GOLD SAVINGS ACCOUNT', basic)
     basic_new.to_csv(basic_url, index=False)
-    premium_new = make_df(res.text, 'PREMIER GOLD ACCOUNT', premium)
+    premium_new = make_df(txt, 'PREMIER GOLD ACCOUNT', premium)
     premium_new.to_csv(premium_url, index=False)
     alert(basic, basic_new, premium_new)
