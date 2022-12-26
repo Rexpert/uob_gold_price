@@ -76,6 +76,7 @@ def alert(basic, basic_new, premium_new):
         time_ago = pd.Timestamp.now() - pd.DateOffset(years=1)
         min_messages.append(compare('min', '1-year ago', basic_price_now, premium_price_now, basic.query('TIME >= @time_ago').SELLING.min()))
         min_messages.append(compare('min', 'all-time ever', basic_price_now, premium_price_now, basic.SELLING.min()))
+        min_messages.append('')
 
         basic_price_now = basic_new.BUYING.iloc[-1]
         premium_price_now = premium_new.BUYING.iloc[-1]
@@ -89,14 +90,15 @@ def alert(basic, basic_new, premium_new):
         time_ago = pd.Timestamp.now() - pd.DateOffset(years=1)
         max_messages.append(compare('max', '1-year ago', basic_price_now, premium_price_now, basic.query('TIME >= @time_ago').BUYING.max()))
         max_messages.append(compare('max', 'all-time ever', basic_price_now, premium_price_now, basic.BUYING.max()))
+        max_messages.append('')
         
-        min_message_id = min_messages.index('') - 1 if '' in min_messages else 0
-        max_message_id = max_messages.index('') - 1 if '' in max_messages else 0
+        min_message_id = min_messages.index('') - 1
+        max_message_id = max_messages.index('') - 1
         message = ''
         if min_message_id >= 0:
-            message = min_messages[min_message_id-1]
+            message = min_messages[min_message_id]
         elif max_message_id >= 0:
-            message = max_messages[max_message_id-1]
+            message = max_messages[max_message_id]
         if message != '':
             env_file = os.getenv('GITHUB_ENV')
             with open(env_file, 'a') as f:
