@@ -24,7 +24,11 @@ def read_data():
 def get_html():
     a = []
     for _ in range(10):
-        res = requests.get(r'https://www.uob.com.my/wsm/stayinformed.do?path=gia')
+        try:
+            res = requests.get(r'https://www.uob.com.my/wsm/stayinformed.do?path=gia')
+        except requests.exceptions.ConnectionError:
+            a.append('Connection Error')
+            continue
         if res.status_code == 200:
             return res.text
         a.append(res.status_code)
