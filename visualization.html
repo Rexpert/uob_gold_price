@@ -115,6 +115,11 @@
                 render_chart('Premier Gold Account', premium_data, premium_chart)
             })
 
+        window.onresize = () => {
+            basic_chart.resize()
+            premium_chart.resize()
+        }
+
         // const sleep = ms => new Promise(r => setTimeout(r, ms));
         // (async function demo() {
         //     for (let i = 0; i < 5; i++) {
