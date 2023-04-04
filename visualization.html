@@ -4,12 +4,8 @@
 <head>
     <meta charset="utf-8" />
     <title>Gold Price Visualization</title>
-    <!-- <script src="static/node_modules/echarts/dist/echarts.js"></script>
-    <script src="static/node_modules/jquery/dist/jquery.js"></script>
-    <script src="static/node_modules/jquery-csv/src/jquery.csv.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3/dist/echarts.js" integrity="sha256-E5b0O4AhPTlxRxD4SNUVrMx7/RQDnV2PjWpPIjWoXd4=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-csv@1.0.21/src/jquery.csv.min.js" integrity="sha256-zGo0JbZ5Sn6wU76MyVL0TrUZUq5GLXaFnMQCe/hSwVI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dfX5uYVXzyU8+KHqj8bjo7UkOdg18PaOtpa48djpNbZHwExddghZ+ZmzWT06R5v6NSk3ZUfsH6FNEDepLx9hPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body>
@@ -71,28 +67,64 @@
                 }
             ]
         };
+        let cache = {}
+        let fetch_promise = {}
+        function load_data(url) {
+            if (cache[url]) {
+                console.log('cache')
+                return Promise.resolve(cache[url]);
+            } else if (fetch_promise[url]) {
+                console.log('waiting')
+                return fetch_promise[url]
+            } else {
+                console.log('not cache')
+                fetch_promise[url] = fetch(url)
+                    .then(res => res.text())
+                    .then(data => {
+                        cache[url] = Papa.parse(data, {skipEmptyLines: true}).data.map(row => Object.values(row));
+                        return cache[url];
+                    })
+                    .catch(error => console.error(error))
+                    .finally(() => fetch_promise[url] = null)
+                return fetch_promise[url]
+            }
+        }
 
-        $.get('data/basic_price.csv', (res) => {
-            const data = $.csv.toArrays(res);
-            option.title.text = 'Gold Savings Account';
+        function render_chart(title, data, chart) {
+            option.title.text = title;
             option.dataset.source = data;
             let newData = [...data.slice(-1)[0]]
-            let now = new Date();
-            newData[0] = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            newData[0] = string_date(new Date())
             data.push(newData)
-            basic_chart.setOption(option);
-        })
+            chart.setOption(option);
+        }
 
-        $.get('data/premium_price.csv', (res) => {
-            const data = $.csv.toArrays(res);
-            option.title.text = 'Premier Gold Account';
-            option.dataset.source = data;
-            let newData = [...data.slice(-1)[0]]
-            let now = new Date();
-            newData[0] = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-            data.push(newData)
-            premium_chart.setOption(option);
-        })
+        function string_date(date) {
+            const year   = `${date.getFullYear()}`
+            const month  = `${(date.getMonth() + 1).toString().padStart(2, '0')}`
+            const day    = `${date.getDate().toString().padStart(2, '0')}`
+            const hour   = `${date.getHours().toString().padStart(2, '0')}`
+            const minute = `${date.getMinutes().toString().padStart(2, '0')}`
+            const second = `${date.getSeconds().toString().padStart(2, '0')}`
+            return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+        }
+
+        Promise.all([load_data('data/basic_price.csv'), load_data('data/premium_price.csv')])
+            .then(([basic_data, premium_data]) => {
+                render_chart('Gold Savings Account', basic_data, basic_chart)
+                render_chart('Premier Gold Account', premium_data, premium_chart)
+            })
+
+        // const sleep = ms => new Promise(r => setTimeout(r, ms));
+        // (async function demo() {
+        //     for (let i = 0; i < 5; i++) {
+        //         console.log(`Waiting ${i} seconds...`);
+        //         await sleep(i * 1000);
+        //         load_basic_data('data/basic_price.csv')
+        //         load_basic_data('data/premium_price.csv')
+        //     }
+        //     console.log('Done');
+        // })()
     </script>
 </body>
 
