@@ -70,10 +70,14 @@ This repo logs the gold price offered by UOB © [United Overseas Bank (Malaysia)
 
 ## :rotating_light: Price Alert
 - Subscribe to [issue #3](https://github.com/Rexpert/uob_gold_price/issues/3) to get E-Mail Notifications for the best timing to trade GIA. 
+- :heavy_plus_sign:: Buying Advice
+- :heavy_minus_sign:: Selling Advice
 - Best timing means:
-  - Lowest Bank Selling Price (In which you can buy gold at a lower cost)
-  - Highest Bank Buying Price (In which you can sell gold at a higher profit)
-- Currently the alert is triggered when best price happens within 1 month / 3 months / 6 months / 1 year / all time.
+  - :heavy_plus_sign:: Lowest Bank Selling Price (In which you can buy gold at a lower cost)
+  - :heavy_minus_sign:: Highest Bank Buying Price (In which you can sell gold at a higher profit)
+  - :heavy_plus_sign:: Large drop in Bank Selling Price (In which you can expect a raise in near future)
+  - :heavy_minus_sign:: Large raise in Bank Selling Price (In which you can expect a drop in near future)
+- Currently the alert is triggered when best price happens within 1 month / 3 months / 6 months / 1 year / all time or whenever large change occured.
 
 ## :page_facing_up: Disclaimer
 - I do not own/create the data in UOB website.
