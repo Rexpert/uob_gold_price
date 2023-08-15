@@ -59,13 +59,13 @@ def make_df(txt, item, old):
 def compare(crit, timeframe, basic_price_now, premium_price_now, basic_price_crit):
     message = ''
     if (crit == 'min') and (basic_price_now < basic_price_crit):
-        message = f'Bank Selling Price is now minimum in {timeframe}: GSA-RM{basic_price_now:.2f}/gm, PGA-RM{premium_price_now:.0f}/kg'
+        message = f':heavy_plus_sign: Bank Selling Price is now minimum in {timeframe}: GSA-RM{basic_price_now:.2f}/gm, PGA-RM{premium_price_now:.0f}/kg'
     elif (crit == 'max') and (basic_price_now > basic_price_crit):
-        message = f'Bank Buying Price is now maximum in {timeframe}: GSA-RM{basic_price_now:.2f}/gm, PGA-RM{premium_price_now:.0f}/kg'
+        message = f':heavy_minus_sign: Bank Buying Price is now maximum in {timeframe}: GSA-RM{basic_price_now:.2f}/gm, PGA-RM{premium_price_now:.0f}/kg'
     elif (crit == 'drop') and (basic_price_now < basic_price_crit):
-        message = f'Bank Selling Price is now having large drop: GSA-RM{basic_price_now:.2f}/gm, PGA-RM{premium_price_now:.0f}/kg'
+        message = f':heavy_plus_sign: Bank Selling Price is now having large drop: GSA-RM{basic_price_now:.2f}/gm, PGA-RM{premium_price_now:.0f}/kg'
     elif (crit == 'raise') and (basic_price_now > basic_price_crit):
-        message = f'Bank Buying Price is now having large raise: GSA-RM{basic_price_now:.2f}/gm, PGA-RM{premium_price_now:.0f}/kg'        
+        message = f':heavy_minus_sign: Bank Buying Price is now having large raise: GSA-RM{basic_price_now:.2f}/gm, PGA-RM{premium_price_now:.0f}/kg'        
     return message
 
 
