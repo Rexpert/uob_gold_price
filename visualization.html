@@ -13,17 +13,25 @@
         integrity="sha512-dfX5uYVXzyU8+KHqj8bjo7UkOdg18PaOtpa48djpNbZHwExddghZ+ZmzWT06R5v6NSk3ZUfsH6FNEDepLx9hPQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <style>
-            html, body {
-                margin: 0;
-                height: 100%;
-                overflow: hidden
+            .container {
+                min-height: 88vh;
+            }
+            @media (max-width: 576px) {
+                html, body {
+                    margin: 0;
+                    height: 100%;
+                    overflow: hidden
+                }
+                .container {
+                    min-height: 70vh;
+                }
             }
         </style>
 </head>
 
 <body>
 
-    <div class="container position-relative" style="min-height: 88vh;">
+    <div class="container position-relative">
         <ul class="pt-3 nav nav-tabs d-lg-flex d-none">
             <li class="nav-item">
                 <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#basic_chart" type="button"
@@ -69,6 +77,13 @@
                 type: 'value',
                 min: 'dataMin'
             },
+            dataZoom: [
+                {
+                    type: 'slider',
+                    show: true,
+                    xAxisIndex: [0],
+                }
+            ],
             dataset: {
                 source: []
             },
@@ -135,12 +150,18 @@
             let newData = [...data.slice(-1)[0]]
             newData[0] = string_date(new Date())
             data.push(newData)
+            const date = new Date();
             if (document.body.clientWidth < 597) {
                 option.grid = {
                     right: '20%',
                     left: '15%',
-                    bottom: '25%'
                 }
+                date.setDate(1)
+                date.setMonth(date.getMonth()-3)
+                option.dataZoom[0].startValue = string_date(date)
+            } else {
+                date.setMonth(date.getMonth()-6)
+                option.dataZoom[0].startValue = string_date(date)
             }
             chart.setOption(option);
         }
