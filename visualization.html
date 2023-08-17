@@ -12,11 +12,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"
         integrity="sha512-dfX5uYVXzyU8+KHqj8bjo7UkOdg18PaOtpa48djpNbZHwExddghZ+ZmzWT06R5v6NSk3ZUfsH6FNEDepLx9hPQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <style>
+            html, body {
+                margin: 0;
+                height: 100%;
+                overflow: hidden
+            }
+        </style>
 </head>
 
 <body>
 
-    <div class="container position-relative" style="min-height: 85vh;">
+    <div class="container position-relative" style="min-height: 88vh;">
         <ul class="pt-3 nav nav-tabs d-lg-flex d-none">
             <li class="nav-item">
                 <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#basic_chart" type="button"
@@ -38,7 +45,7 @@
         <div class="tab-content mt-4">
             <div id="basic_chart" class="tab-pane fade position-absolute w-100 h-100 show active" role="tabpanel"
                 tabindex="0"></div>
-            <div id="premium_chart" class="tab-pane fade position-absolute w-100 h-100 active" role="tabpanel"
+            <div id="premium_chart" class="tab-pane fade position-absolute w-100 h-100" role="tabpanel"
                 tabindex="0"></div>
         </div>
     </div>
@@ -128,6 +135,13 @@
             let newData = [...data.slice(-1)[0]]
             newData[0] = string_date(new Date())
             data.push(newData)
+            if (document.body.clientWidth < 597) {
+                option.grid = {
+                    right: '20%',
+                    left: '15%',
+                    bottom: '25%'
+                }
+            }
             chart.setOption(option);
         }
 
@@ -147,15 +161,20 @@
                 render_chart('Premier Gold Account', premium_data, premium_chart)
             })
 
+        document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(
+            tabEl => tabEl.addEventListener('shown.bs.tab', event => {
+                if (event.target.textContent=='Premier Gold Account'){
+                    premium_chart.resize()
+                } else {
+                    basic_chart.resize()
+                }
+            })
+        )
+        
         window.onresize = () => {
             basic_chart.resize()
             premium_chart.resize()
         }
-
-        document.addEventListener("DOMContentLoaded", function(event) {
-            // Fix bug that premium chart overlap basic chart
-            document.querySelector('#premium_chart').classList.remove('active');
-        });
 
         // const sleep = ms => new Promise(r => setTimeout(r, ms));
         // (async function demo() {
