@@ -152,6 +152,11 @@
             premium_chart.resize()
         }
 
+        document.addEventListener("DOMContentLoaded", function(event) {
+            // Fix bug that premium chart overlap basic chart
+            document.querySelector('#premium_chart').classList.remove('active');
+        });
+
         // const sleep = ms => new Promise(r => setTimeout(r, ms));
         // (async function demo() {
         //     for (let i = 0; i < 5; i++) {
