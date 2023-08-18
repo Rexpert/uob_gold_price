@@ -44,10 +44,10 @@
         </ul>
         <ul class="pt-3 nav nav-pills d-flex d-lg-none row">
             <li class="nav-item col">
-                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#basic_chart" type="button" role="tab">Gold Savings Account</button>
+                <button class="nav-link mx-auto active" data-bs-toggle="tab" data-bs-target="#basic_chart" type="button" role="tab">Gold Savings Account</button>
             </li>
             <li class="nav-item col">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#premium_chart" type="button" role="tab">Premier Gold Account</button>
+                <button class="nav-link mx-auto" data-bs-toggle="tab" data-bs-target="#premium_chart" type="button" role="tab">Premier Gold Account</button>
             </li>
         </ul>
         <div class="tab-content mt-4">
@@ -184,7 +184,7 @@
 
         document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(
             tabEl => tabEl.addEventListener('shown.bs.tab', event => {
-                if (event.target.textContent=='Premier Gold Account'){
+                if (event.target.textContent==='Premier Gold Account'){
                     premium_chart.resize()
                 } else {
                     basic_chart.resize()
