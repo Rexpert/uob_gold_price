@@ -12,25 +12,66 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"
         integrity="sha512-dfX5uYVXzyU8+KHqj8bjo7UkOdg18PaOtpa48djpNbZHwExddghZ+ZmzWT06R5v6NSk3ZUfsH6FNEDepLx9hPQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <style>
+    <style>
+        /* Chrome, Safari, Edge, Opera */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        tr {
+            vertical-align: middle;
+        }
+
+        tr>td:first-child {
+            text-align: center;
+        }
+        
+        td {
+            background-color: transparent !important;
+        }
+
+        .container {
+            min-height: 88vh;
+        }
+
+        @media (max-width: 576px) {
+
+            html,
+            body {
+                margin: 0;
+                height: 100%;
+                overflow: hidden
+            }
+
             .container {
-                min-height: 88vh;
+                min-height: 70vh;
             }
-            @media (max-width: 576px) {
-                html, body {
-                    margin: 0;
-                    height: 100%;
-                    overflow: hidden
-                }
-                .container {
-                    min-height: 70vh;
-                }
-            }
-        </style>
+        }
+    </style>
 </head>
 
 <body>
-
+    <template id="tr-lg">
+        <tr id="">
+            <td><input type="checkbox" id="check-" class="form-check-input" /></td>
+            <!-- TODO L4: disable future date -->
+            <td><input type="date" id="date-" class="form-control" /></td>
+            <td><input type="number" id="buy-" class="form-control" min="0" /></td>
+            <td><input type="number" id="sell-" class="form-control" min="0" /></td>
+            <td>
+                <input type="number" id="price-" class="form-control" step="0.01"/>
+                <datalist id="list-"></datalist>
+            </td>
+            <td><input type="number" id="rm-" class="form-control-plaintext text-center" readonly /></td>
+        </tr>
+    </template>
     <div class="container position-relative">
         <ul class="pt-3 nav nav-tabs d-lg-flex d-none">
             <li class="nav-item">
@@ -41,22 +82,345 @@
                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#premium_chart" type="button"
                     role="tab">Premier Gold Account</button>
             </li>
+            <li class="ms-auto">
+                <button class="btn btn-primary mx-auto" data-bs-toggle="modal" data-bs-target="#trx-data" type="button"
+                    role="tab">☰</button>
+            </li>
         </ul>
         <ul class="pt-3 nav nav-pills d-flex d-lg-none row">
             <li class="nav-item col">
-                <button class="nav-link mx-auto active" data-bs-toggle="tab" data-bs-target="#basic_chart" type="button" role="tab">Gold Savings Account</button>
+                <button class="nav-link mx-auto active" data-bs-toggle="tab" data-bs-target="#basic_chart" type="button"
+                    role="tab">Gold Savings Account</button>
             </li>
             <li class="nav-item col">
-                <button class="nav-link mx-auto" data-bs-toggle="tab" data-bs-target="#premium_chart" type="button" role="tab">Premier Gold Account</button>
+                <button class="nav-link mx-auto" data-bs-toggle="tab" data-bs-target="#premium_chart" type="button"
+                    role="tab">Premier Gold Account</button>
+            </li>
+            <li class="col-1">
+                <button id="btn-trx-data" class="btn btn-primary mx-auto" data-bs-toggle="modal" data-bs-target="#trx-data"
+                    type="button" role="tab">☰</button>
             </li>
         </ul>
         <div class="tab-content mt-4">
             <div id="basic_chart" class="tab-pane fade position-absolute w-100 h-100 show active" role="tabpanel"
                 tabindex="0"></div>
-            <div id="premium_chart" class="tab-pane fade position-absolute w-100 h-100" role="tabpanel"
-                tabindex="0"></div>
+            <div id="premium_chart" class="tab-pane fade position-absolute w-100 h-100" role="tabpanel" tabindex="0">
+            </div>
+        </div>
+        <div id="trx-data" class="modal fade" tabindex="-1">
+            <form id="form" class="modal-dialog modal-lg modal-dialog-scrollable modal-fullscreen-lg-down" novalidate>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Gold Transaction Data</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table ">
+                            <!-- TODO L5: Show non-editable table in small screen -->
+                            <thead>
+                                <tr style="text-align: center;">
+                                    <th scope="col"><input type="checkbox" id="master-check" class="form-check-input" /></th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Buy</th>
+                                    <th scope="col">Sell</th>
+                                    <th scope="col">Price/unit</th>
+                                    <th scope="col">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                            <tfoot>
+                                <tr id="tr-total">
+                                    <th colspan="5" style="text-align: right;">Total</th>
+                                    <th><input type="number" id="total" class="form-control-plaintext text-center" value="0.00" readonly /></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="modal-footer justify-content-between d-flex">
+                        <button id="btn-add" type="button" class="btn btn-primary">Add</button>
+                        <!-- TODO L5: add bulk button -->
+                        <!-- <button type="button" class="btn btn-primary">Add Bulk</button> -->
+                        <div>
+                            <input id="btn-sell" type="checkbox" class="btn-check" autocomplete="off">
+                            <label id="lb-sell" class="btn btn-outline-primary" for="btn-sell">Sell All Now!</label>
+                        </div>
+                        <button id="btn-remove" type="button" class="btn btn-primary">Remove</button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
+
+    <script type="text/javascript">
+        let gold_history = JSON.parse(localStorage.getItem('gold_history'))
+        if (!gold_history) {
+            gold_history = []
+        }
+        let gold_settings = JSON.parse(localStorage.getItem('gold_settings'))
+        if (!gold_settings) {
+            gold_settings = {
+                'sell-all': false
+            }
+        }
+        function calculate_bal() {
+            const buy = document.querySelectorAll('tbody input[id^="buy"]')
+            const sell = document.querySelectorAll('tbody input[id^="sell"]')
+            let bal = 0
+            for (const b of buy) {
+                const num = b.id.match(/\d+/g)
+                if (document.querySelector(`#rm-${num}`).value !== "0.00") {
+                    bal += Number(b.value)
+                }
+            }
+            for (const s of sell) {
+                const num = s.id.match(/\d+/g)
+                if (document.querySelector(`#rm-${num}`).value !== "0.00") {
+                    bal -= Number(s.value)
+                }
+            }
+            return bal
+        }
+        function find_active_chart() {
+            return document.querySelector('#basic_chart').classList.contains('active') ? 'data/basic_price.csv' : 'data/premium_price.csv'
+        }
+        function build_tr(row, disabled=false) {
+            const tr = document.querySelector('#tr-lg').cloneNode(true).content.firstElementChild
+            const last_tr = document.querySelector('tbody').lastElementChild
+            const num = disabled ? 0 
+                : last_tr ? Number(last_tr.id) + 1 
+                : 1
+            tr.id = num
+            const check = tr.querySelector('#check-')
+            const date = tr.querySelector('#date-')
+            const buy = tr.querySelector('#buy-')
+            const sell = tr.querySelector('#sell-')
+            const price = tr.querySelector('#price-')
+            const rm = tr.querySelector('#rm-')
+            if (row) {
+                date.value = row['date']
+                if(row['unit'] > 0) {
+                    buy.value = row['unit']
+                    sell.setAttribute('disabled', true)
+                    tr.style.backgroundColor = '#b5dab5'
+                } else {
+                    sell.value = -row['unit']
+                    buy.setAttribute('disabled', true)
+                    tr.style.backgroundColor = '#ffcccc'
+                }
+                price.value = set_decimal(row['price'])
+            }
+            if (disabled) {
+                // TODO L3: support on sell partial unit now
+                check.hidden = true;
+                [date, buy, sell, price].forEach(elem => {
+                    elem.setAttribute('disabled', true)
+                    elem.setAttribute('readonly', true)
+                })
+            } else {
+                check.checked = document.querySelector('#master-check').checked
+            }
+            price.setAttribute('list', `list-${num}`)
+            buy.addEventListener('keyup', event => {
+                rm_value = - price.value * buy.value
+                rm.value = set_decimal(rm_value)
+                calculate_total()
+                if (buy.value !== "") {
+                    sell.value = ""
+                    sell.setAttribute('disabled', true)
+                    tr.style.backgroundColor = '#b5dab5'
+                } else {
+                    sell.removeAttribute('disabled')
+                    tr.style.backgroundColor = ''
+                }
+            })
+            sell.addEventListener('keyup', event => {
+                rm_value = price.value * sell.value
+                rm.value = set_decimal(rm_value)
+                calculate_total()
+                if (sell.value !== "") {
+                    buy.value = ""
+                    buy.setAttribute('disabled', true)
+                    tr.style.backgroundColor = '#ffcccc'
+                } else {
+                    buy.removeAttribute('disabled')
+                    tr.style.backgroundColor = ''
+                }
+            })
+            price.addEventListener('keyup', event => {
+                rm_value = price.value * (sell.value - buy.value)
+                rm.value = set_decimal(rm_value)
+                calculate_total()
+            })
+            price.addEventListener('focus', event => {
+                if (date.value !== "") {
+                    const address = find_active_chart();
+                    const regex = new RegExp(date.value, 'i')
+                    tr.querySelectorAll('option').forEach(el => el.remove())
+                    load_data(address)
+                        .then(data => {
+                            for (const history of data.filter(row => regex.test(row[0]))) {
+                                if (buy.value !== '') {
+                                    const opt_value = set_decimal(Number(history[1]))
+                                    const option = new Option(opt_value, opt_value)
+                                    tr.querySelector('datalist').appendChild(option)
+                                } else if (sell.value !== '') {
+                                    const opt_value = set_decimal(Number(history[2]))
+                                    const option = new Option(opt_value, opt_value)
+                                    tr.querySelector('datalist').appendChild(option)
+                                }
+                            }
+                        })
+                }
+            })
+            tr.querySelectorAll('[id$="-"]').forEach(elem => elem.id += num)
+            calculate_subtotal(tr)
+            return tr
+        }
+        function set_decimal(num) {
+            return Math.abs(num) > 99999 ? num.toFixed(0) : num.toFixed(2)
+        }
+        function calculate_total() {
+            if (document.querySelector('#btn-sell').checked) {
+                const bal = calculate_bal()
+                const tr = document.querySelector('tfoot>tr:not([id="tr-total"])')
+                const buy = tr.querySelector('input[id^="buy"]')
+                const sell = tr.querySelector('input[id^="sell"]')
+                const price = tr.querySelector('input[id^="price"]')
+                const rm = tr.querySelector('input[id^="rm"]')
+                if (bal > 0) {
+                    sell.value = bal
+                    buy.value = ""
+                } else if (bal < 0) {
+                    buy.value = -bal
+                    sell.value = ""
+                } else {
+                    buy.value = ""
+                    sell.value = ""
+                }
+                rm.value = set_decimal(price.value * (sell.value - buy.value))
+            }
+            let total = 0
+            for (const subtotal of document.querySelectorAll('input[id^="rm-"]')) {
+                total += Number(subtotal.value)
+            }
+            document.querySelector('#total').value = set_decimal(total)
+        }
+        function calculate_subtotal(elem) {
+            const date = elem.querySelector('input[id^="date"]')
+            const buy = elem.querySelector('input[id^="buy"]')
+            const sell = elem.querySelector('input[id^="sell"]')
+            const price = elem.querySelector('input[id^="price"]')
+            const rm = elem.querySelector('input[id^="rm"]')
+            let rm_value = price.value * (sell.value - buy.value)
+            rm.value = set_decimal(rm_value)
+        }
+        window.onload = () => {
+            document.querySelector('#master-check').addEventListener('change', event => {
+                document.querySelectorAll('tbody input[id^="check-"]').forEach(elem => {
+                    elem.checked = event.target.checked
+                })
+            })
+            document.querySelector('#btn-add').addEventListener('click', event => {
+                const tr = build_tr()
+                document.querySelector('tbody').append(tr)
+            })
+            document.querySelector('#btn-remove').addEventListener('click', event => {
+                document.querySelectorAll('input[id^="check-"]:checked').forEach(elem => {
+                    elem.closest('tr').remove()
+                    calculate_total()
+                })
+            })
+            document.querySelector('#btn-sell').addEventListener('change', event => {
+                const bal = calculate_bal()
+                if (event.target.checked) {
+                    const address = find_active_chart();
+                    if (bal != 0) {
+                        load_data(address)
+                            .then(data => {
+                                const row = {
+                                    'date': data.at(-1)[0].slice(0, 10),
+                                    'unit': -bal,
+                                    'price': bal > 0 ? Number(data.at(-1)[2]):Number(data.at(-1)[1]),
+                                }
+                                const tr = build_tr(row, true)
+                                document.querySelector('tfoot').prepend(tr)
+                                calculate_total()
+                            })
+                    } else {
+                        document.querySelector('#btn-sell').checked = false
+                    }
+                } else {
+                    const tr = document.querySelector('tfoot>tr:not([id="tr-total"])')
+                    if (tr) {
+                        tr.remove()
+                        calculate_total()
+                    }
+                }
+                gold_settings['sell-all'] = bal!=0 && event.target.checked
+                localStorage.setItem('gold_settings', JSON.stringify(gold_settings))
+            })
+            document.querySelector('#form').addEventListener('submit', event => {
+                event.preventDefault();
+                function is_empty(elem) {
+                    return elem.value == 0 && !elem.getAttribute('disabled')
+                }
+                document.querySelectorAll('input[id^="buy"],input[id^="sell"]').forEach(elem => {
+                    elem.classList.remove('is-invalid')
+                    if (!Number.isInteger(Number(elem.value)) || is_empty(elem)) {
+                        elem.classList.add('is-invalid')
+                    }
+                })
+                document.querySelectorAll('input[id^="price"]').forEach(elem => {
+                    elem.classList.remove('is-invalid')
+                    if (is_empty(elem)) {
+                        elem.classList.add('is-invalid')
+                    }
+                })
+                document.querySelectorAll('input[id^="date"]').forEach(elem => {
+                    elem.classList.remove('is-invalid')
+                    if (!elem.value) {
+                        elem.classList.add('is-invalid')
+                    }
+                })
+                if (document.querySelectorAll('.is-invalid').length == 0) {
+                    gold_history = []
+                    document.querySelectorAll('tbody tr').forEach(elem => {
+                        gold_history.push({
+                            'date': elem.querySelector('input[id^="date"]').value,
+                            'unit': Number(elem.querySelector('input[id^="buy"]').value) - Number(elem.querySelector('input[id^="sell"]').value),
+                            'price': Number(elem.querySelector('input[id^="price"]').value)
+                        })
+                    })
+                    localStorage.setItem('gold_history', JSON.stringify(gold_history))
+                    // TODO L3: Sort by date upon save (or make HTML table sortable)
+                    render_charts()
+                }
+                const bs_modal = new bootstrap.Modal(document.querySelector('#trx-data'))
+                bs_modal.hide()
+            })
+            document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(
+                tabEl => tabEl.addEventListener('shown.bs.tab', event => {
+                    event.target.textContent == 'Premier Gold Account' ? premium_chart.resize() : basic_chart.resize()
+                })
+            )
+            document.querySelector('#btn-trx-data').click()
+            for (const row of gold_history) {
+                const tr = build_tr(row)
+                calculate_subtotal(tr)
+                document.querySelector('tbody').append(tr)
+            }
+            calculate_total()
+            // Click on btn-sell if gold_settings['sell-all'] == true
+            if (gold_settings['sell-all']) {
+                document.querySelector('#btn-sell').click()
+            }
+            render_charts()
+        }
+    </script>
 
     <script type="text/javascript">
         const basic_chart = echarts.init(document.getElementById('basic_chart'));
@@ -102,6 +466,10 @@
                     encode: {
                         x: 'TIME',
                         y: 'SELLING',
+                    },
+                    markPoint: {
+                        data: [],
+                        label: {}
                     }
                 }, {
                     name: 'Bank Buying',
@@ -117,6 +485,10 @@
                     encode: {
                         x: 'TIME',
                         y: 'BUYING',
+                    },
+                    markPoint: {
+                        data: [],
+                        label: {}
                     }
                 }
             ]
@@ -125,13 +497,13 @@
         let fetch_promise = {}
         function load_data(url) {
             if (cache[url]) {
-                console.log('cache')
+                // console.log('cache')
                 return Promise.resolve(cache[url]);
             } else if (fetch_promise[url]) {
-                console.log('waiting')
+                // console.log('waiting')
                 return fetch_promise[url]
             } else {
-                console.log('not cache')
+                // console.log('not cache')
                 fetch_promise[url] = fetch(url)
                     .then(res => res.text())
                     .then(data => {
@@ -145,24 +517,59 @@
         }
 
         function render_chart(title, data, chart) {
-            // option.title.text = title;
             option.dataset.source = data;
-            let newData = [...data.slice(-1)[0]]
-            newData[0] = string_date(new Date())
-            data.push(newData)
             const date = new Date();
+            let newData = [...data.slice(-1)[0]]
+            newData[0] = string_date(date)
+            data.push(newData)
             if (document.body.clientWidth < 597) {
                 option.grid = {
                     right: '20%',
                     left: '15%',
                 }
+                option.series.forEach(s => {
+                    s.markPoint.symbolSize = 30
+                    s.markPoint.label.fontSize = 9
+                })
                 date.setDate(1)
-                date.setMonth(date.getMonth()-3)
+                date.setMonth(date.getMonth() - 3)
                 option.dataZoom[0].startValue = string_date(date)
             } else {
-                date.setMonth(date.getMonth()-6)
+                date.setMonth(date.getMonth() - 6)
                 option.dataZoom[0].startValue = string_date(date)
             }
+            const mark_point_buy = []
+            const mark_point_sell = []
+            for (const trx of gold_history) {
+                const regex = RegExp(trx['date'], 'i')
+                const is_buy = trx['unit'] > 0
+                const dates = data.filter(row => regex.test(row[0]) && (is_buy?row[1]:row[2])==trx['price'])
+                let trx_date;
+                if (dates.length > 0) {
+                    trx_date = dates[0][0]
+                } else if ((trx['price'] <= 99999 && title.includes('Savings')) || (trx['price'] > 99999 && title.includes('Premier'))) {
+                    trx_date = trx['date']
+                }
+                if (trx_date) {
+                    if(is_buy) {
+                        const d = {
+                            value: trx['unit'],
+                            xAxis: trx_date,
+                            yAxis: trx['price']
+                        }
+                        mark_point_buy.push(d)
+                    } else {
+                        const d = {
+                            value: -trx['unit'],
+                            xAxis: trx_date,
+                            yAxis: trx['price']
+                        }
+                        mark_point_sell.push(d)
+                    }
+                }
+            }
+            option['series'][0]['markPoint']['data'] = mark_point_buy
+            option['series'][1]['markPoint']['data'] = mark_point_sell
             chart.setOption(option);
         }
 
@@ -176,22 +583,14 @@
             return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
         }
 
-        Promise.all([load_data('data/basic_price.csv'), load_data('data/premium_price.csv')])
-            .then(([basic_data, premium_data]) => {
-                render_chart('Gold Savings Account', basic_data, basic_chart)
-                render_chart('Premier Gold Account', premium_data, premium_chart)
-            })
+        function render_charts() {
+            Promise.all([load_data('data/basic_price.csv'), load_data('data/premium_price.csv')])
+                .then(([basic_data, premium_data]) => {
+                    render_chart('Gold Savings Account', basic_data, basic_chart)
+                    render_chart('Premier Gold Account', premium_data, premium_chart)
+                })
+        }
 
-        document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(
-            tabEl => tabEl.addEventListener('shown.bs.tab', event => {
-                if (event.target.textContent==='Premier Gold Account'){
-                    premium_chart.resize()
-                } else {
-                    basic_chart.resize()
-                }
-            })
-        )
-        
         window.onresize = () => {
             basic_chart.resize()
             premium_chart.resize()
