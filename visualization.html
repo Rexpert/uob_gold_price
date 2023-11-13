@@ -148,7 +148,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
             </form>
@@ -183,6 +183,9 @@
                 }
             }
             return bal
+        }
+        function save_item(item, name) {
+            localStorage.setItem(name, JSON.stringify(item))
         }
         function find_active_chart() {
             return document.querySelector('#basic_chart').classList.contains('active') ? 'data/basic_price.csv' : 'data/premium_price.csv'
@@ -381,7 +384,7 @@
                         load_data(address)
                             .then(data => {
                                 const row = {
-                                    'date': data.at(-1)[0].slice(0, 10),
+                                    'date': (new Date).toISOString().slice(0,10),
                                     'unit': -bal,
                                     'price': bal > 0 ? Number(data.at(-1)[2]):Number(data.at(-1)[1]),
                                 }
@@ -400,7 +403,7 @@
                     }
                 }
                 gold_settings['sell-all'] = bal!=0 && event.target.checked
-                localStorage.setItem('gold_settings', JSON.stringify(gold_settings))
+                save_item(gold_settings, 'gold_settings')
             })
             document.querySelector('#form').addEventListener('submit', event => {
                 event.preventDefault();
@@ -434,12 +437,10 @@
                             'price': Number(elem.querySelector('input[id^="price"]').value)
                         })
                     })
-                    localStorage.setItem('gold_history', JSON.stringify(gold_history))
-                    // TODO L3: Sort by date upon save (or make HTML table sortable)
+                    save_item('gold_history', gold_history)
                     render_charts()
+                    bootstrap.Modal.getInstance(document.querySelector('#trx-data')).hide()
                 }
-                const bs_modal = new bootstrap.Modal(document.querySelector('#trx-data'))
-                bs_modal.hide()
             })
             document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(
                 tabEl => tabEl.addEventListener('shown.bs.tab', event => {
