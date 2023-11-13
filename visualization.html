@@ -118,13 +118,13 @@
                         <table class="table ">
                             <!-- TODO L5: Show non-editable table in small screen -->
                             <thead>
-                                <tr style="text-align: center;">
-                                    <th scope="col"><input type="checkbox" id="master-check" class="form-check-input" /></th>
-                                    <th scope="col">Date</th>
-                                    <th scope="col">Buy</th>
-                                    <th scope="col">Sell</th>
-                                    <th scope="col">Price/unit</th>
-                                    <th scope="col">Subtotal</th>
+                                <tr style="text-align: center; user-select: none;">
+                                    <th scope="col"><input type="checkbox" id="header-check" class="form-check-input" /></th>
+                                    <th scope="col" id="header-date">Date</th>
+                                    <th scope="col" id="header-buy">Buy</th>
+                                    <th scope="col" id="header-sell">Sell</th>
+                                    <th scope="col" id="header-price">Price/unit</th>
+                                    <th scope="col" id="header-rm">Subtotal</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -221,7 +221,7 @@
                     elem.setAttribute('readonly', true)
                 })
             } else {
-                check.checked = document.querySelector('#master-check').checked
+                check.checked = document.querySelector('#header-check').checked
             }
             price.setAttribute('list', `list-${num}`)
             buy.addEventListener('keyup', event => {
@@ -319,10 +319,49 @@
             rm.value = set_decimal(rm_value)
         }
         window.onload = () => {
-            document.querySelector('#master-check').addEventListener('change', event => {
+            document.querySelector('#header-check').addEventListener('change', event => {
                 document.querySelectorAll('tbody input[id^="check-"]').forEach(elem => {
                     elem.checked = event.target.checked
                 })
+            })
+            // Add listener on table header
+            function sort_content(target, subject) {
+                const regex = new RegExp('▲$', 'i')
+                let title = target.textContent
+                const is_dsc = regex.test(title);
+                [...document.querySelectorAll('tbody>tr')]
+                    .sort((a,b) => {
+                        const is_date = event.target.id.includes('date')
+                        let a_val = a.querySelector(`input[id^=${subject}]`).value
+                        let b_val = b.querySelector(`input[id^=${subject}]`).value
+                        const a_val_empty = is_date ? a_val==='' : !a_val
+                        const b_val_empty = is_date ? b_val==='' : !b_val
+                        if (a_val_empty) {
+                            return 1
+                        } else if (b_val_empty) {
+                            return -1
+                        } else {
+                            a_val = is_date ? new Date(a_val) : parseFloat(a_val)
+                            b_val = is_date ? new Date(b_val) : parseFloat(b_val)
+                            // if (is_dsc) {
+                            //     return a_val > b_val ? -1 : 1
+                            // } else {
+                            //     return a_val < b_val ? -1 : 1
+                            // }
+                            return (is_dsc ^ (a_val > b_val)) ? 1 : -1
+                        }
+                    })
+                    .forEach(tr => document.querySelector('tbody').appendChild(tr))
+                document
+                    .querySelectorAll('th[id^="header"]')
+                    .forEach(elem => elem.textContent = elem.textContent.replace(/▼|▲/g, ''))
+                target.textContent += (is_dsc ? '▼' : '▲')
+                gold_settings['sort'] = subject
+                save_item(gold_settings, 'gold_settings')
+            }
+            document.querySelectorAll('th[id^="header"]').forEach(elem => {
+                const subject = elem.id.replace('header-', '')
+                elem.addEventListener('click', event => sort_content(elem, subject))
             })
             document.querySelector('#btn-add').addEventListener('click', event => {
                 const tr = build_tr()
@@ -417,6 +456,9 @@
             // Click on btn-sell if gold_settings['sell-all'] == true
             if (gold_settings['sell-all']) {
                 document.querySelector('#btn-sell').click()
+            }
+            if (gold_settings['sort']) {
+                document.querySelector(`#header-${gold_settings['sort']}`).click()
             }
             render_charts()
         }
