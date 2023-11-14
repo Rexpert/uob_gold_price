@@ -447,6 +447,8 @@
                 })
             )
             document.querySelector('#btn-trx-data').click()
+            const max_date = (new Date()).toISOString().slice(0,10);
+            document.querySelector('#tr-lg').content.querySelector('input#date-').setAttribute('max', max_date)
             for (const row of gold_history) {
                 const tr = build_tr(row)
                 calculate_subtotal(tr)
@@ -465,10 +467,6 @@
                     header.click()
                 }
             }
-            document.querySelectorAll('input[type="date"]').forEach(input => {
-                const max_date = (new Date()).toISOString().slice(0,10);
-                input.setAttribute('max', max_date)
-            })
             render_charts()
         }
     </script>
