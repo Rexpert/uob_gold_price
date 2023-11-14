@@ -217,7 +217,6 @@
                 price.value = set_decimal(row['price'])
             }
             if (disabled) {
-                // TODO L3: support on sell partial unit now
                 check.hidden = true;
                 [date, buy, sell, price].forEach(elem => {
                     elem.setAttribute('disabled', true)
