@@ -61,7 +61,6 @@
     <template id="tr-lg">
         <tr id="">
             <td><input type="checkbox" id="check-" class="form-check-input" /></td>
-            <!-- TODO L4: disable future date -->
             <td><input type="date" id="date-" class="form-control" /></td>
             <td><input type="number" id="buy-" class="form-control" min="0" /></td>
             <td><input type="number" id="sell-" class="form-control" min="0" /></td>
@@ -466,6 +465,10 @@
                     header.click()
                 }
             }
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                const max_date = (new Date()).toISOString().slice(0,10);
+                input.setAttribute('max', max_date)
+            })
             render_charts()
         }
     </script>
