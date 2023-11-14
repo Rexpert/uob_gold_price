@@ -360,6 +360,7 @@
                     .forEach(elem => elem.textContent = elem.textContent.replace(/▼|▲/g, ''))
                 target.textContent += (is_dsc ? '▼' : '▲')
                 gold_settings['sort'] = subject
+                gold_settings['is_dsc'] = is_dsc
                 save_item(gold_settings, 'gold_settings')
             }
             document.querySelectorAll('th[id^="header"]').forEach(elem => {
@@ -459,7 +460,12 @@
                 document.querySelector('#btn-sell').click()
             }
             if (gold_settings['sort']) {
-                document.querySelector(`#header-${gold_settings['sort']}`).click()
+                const header = document.querySelector(`#header-${gold_settings['sort']}`)
+                const is_dsc = gold_settings['is_dsc']
+                header.click()
+                if (is_dsc) {
+                    header.click()
+                }
             }
             render_charts()
         }
