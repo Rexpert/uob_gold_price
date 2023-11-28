@@ -24,6 +24,16 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
+        
+        td>input.form-control-plaintext{
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            text-align: center;
+        }
 
         tr {
             vertical-align: middle;
@@ -59,8 +69,11 @@
 
 <body>
     <template id="tr-lg">
-        <tr id="">
-            <td><input type="checkbox" id="check-" class="form-check-input" /></td>
+        <tr id="" class="position-relative">
+            <td>
+                <input type="checkbox" id="check-" class="form-check-input position-relative" style="z-index: 2;"/>
+                <a href="" class="invisble stretched-link" data-bs-toggle='modal' data-bs-target='#edit-trx' data-id=""></a>
+            </td>
             <td><input type="date" id="date-" class="form-control" /></td>
             <td><input type="number" id="buy-" class="form-control" min="0" /></td>
             <td><input type="number" id="sell-" class="form-control" min="0" /></td>
@@ -106,6 +119,57 @@
             <div id="premium_chart" class="tab-pane fade position-absolute w-100 h-100" role="tabpanel" tabindex="0">
             </div>
         </div>
+        <div id="edit-trx" class="modal fade" tabindex="-1">
+            <form id="form1" class="modal-dialog modal-lg modal-dialog-scrollable modal-fullscreen-lg-down" novalidate>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5">Gold Transaction Data</h1>
+                        <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="#trx-data"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3 row">
+                            <label for="date" class="col-sm-2 col-form-label">Date</label>
+                            <div class="col-sm-10">
+                                <input type="date" id="date" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="action" class="col-sm-2 col-form-label">Action</label>
+                            <div class="col-sm-10 d-flex">
+                                <input type="radio" class="btn-check" name="action-choices" id="buy" autocomplete="off">
+                                <label class="btn btn-outline-success me-2 flex-fill" for="buy">Buy</label>
+                                <input type="radio" class="btn-check" name="action-choices" id="sell" autocomplete="off">
+                                <label class="btn btn-outline-danger ms-2 flex-fill" for="sell">Sell</label>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="unit" class="col-sm-2 col-form-label">Unit</label>
+                            <div class="col-sm-10">
+                                <input type="number" id="unit" class="form-control" min="0" />
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="price" class="col-sm-2 col-form-label">Price</label>
+                            <div class="col-sm-10">
+                                <input type="number" id="price" class="form-control" step="0.01" list="list"/>
+                                <datalist id="list"></datalist>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="rm" class="col-sm-2 col-form-label">Amount</label>
+                            <div class="col-sm-10">
+                                <input type="text" id="rm" class="form-control-plaintext" readonly />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                            <button type="button" class="btn btn-danger me-auto" id="btn-remove">Remove</button>
+                            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#trx-data">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
         <div id="trx-data" class="modal fade" tabindex="-1">
             <form id="form" class="modal-dialog modal-lg modal-dialog-scrollable modal-fullscreen-lg-down" novalidate>
                 <div class="modal-content">
@@ -115,7 +179,6 @@
                     </div>
                     <div class="modal-body">
                         <table class="table ">
-                            <!-- TODO L5: Show non-editable table in small screen -->
                             <thead>
                                 <tr style="text-align: center; user-select: none;">
                                     <th scope="col"><input type="checkbox" id="header-check" class="form-check-input" /></th>
@@ -137,13 +200,11 @@
                     </div>
                     <div class="modal-footer justify-content-between d-flex">
                         <button id="btn-add" type="button" class="btn btn-primary">Add</button>
-                        <!-- TODO L5: add bulk button -->
-                        <!-- <button type="button" class="btn btn-primary">Add Bulk</button> -->
                         <div>
                             <input id="btn-sell" type="checkbox" class="btn-check" autocomplete="off">
                             <label id="lb-sell" class="btn btn-outline-primary" for="btn-sell">Sell All Now!</label>
                         </div>
-                        <button id="btn-remove" type="button" class="btn btn-primary">Remove</button>
+                        <button id="btn-remove" type="button" class="btn btn-danger">Remove</button>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -155,6 +216,7 @@
     </div>
 
     <script type="text/javascript">
+        const is_small_screen = document.body.clientWidth < 597
         let gold_history = JSON.parse(localStorage.getItem('gold_history'))
         if (!gold_history) {
             gold_history = []
@@ -195,22 +257,24 @@
             const num = disabled ? 0 
                 : last_tr ? Number(last_tr.id) + 1 
                 : 1
-            tr.id = num
+            const anc = tr.querySelector('a')
             const check = tr.querySelector('#check-')
             const date = tr.querySelector('#date-')
             const buy = tr.querySelector('#buy-')
             const sell = tr.querySelector('#sell-')
             const price = tr.querySelector('#price-')
             const rm = tr.querySelector('#rm-')
+            tr.id = num
+            anc.dataset.id = num
             if (row) {
                 date.value = row['date']
                 if(row['unit'] > 0) {
                     buy.value = row['unit']
-                    sell.setAttribute('disabled', true)
+                    sell.setAttribute('disabled', '')
                     tr.style.backgroundColor = '#b5dab5'
                 } else {
                     sell.value = -row['unit']
-                    buy.setAttribute('disabled', true)
+                    buy.setAttribute('disabled', '')
                     tr.style.backgroundColor = '#ffcccc'
                 }
                 price.value = set_decimal(row['price'])
@@ -218,40 +282,41 @@
             if (disabled) {
                 check.hidden = true;
                 [date, buy, sell, price].forEach(elem => {
-                    elem.setAttribute('disabled', true)
-                    elem.setAttribute('readonly', true)
+                    elem.setAttribute('disabled', '')
+                    elem.setAttribute('readonly', '')
                 })
+                anc.classList.add('d-none')
             } else {
                 check.checked = document.querySelector('#header-check').checked
             }
             price.setAttribute('list', `list-${num}`)
-            buy.addEventListener('keyup', event => {
+            buy.addEventListener('input', event => {
                 rm_value = - price.value * buy.value
                 rm.value = set_decimal(rm_value)
                 calculate_total()
                 if (buy.value !== "") {
                     sell.value = ""
-                    sell.setAttribute('disabled', true)
+                    sell.setAttribute('disabled', '')
                     tr.style.backgroundColor = '#b5dab5'
                 } else {
                     sell.removeAttribute('disabled')
                     tr.style.backgroundColor = ''
                 }
             })
-            sell.addEventListener('keyup', event => {
+            sell.addEventListener('input', event => {
                 rm_value = price.value * sell.value
                 rm.value = set_decimal(rm_value)
                 calculate_total()
                 if (sell.value !== "") {
                     buy.value = ""
-                    buy.setAttribute('disabled', true)
+                    buy.setAttribute('disabled', '')
                     tr.style.backgroundColor = '#ffcccc'
                 } else {
                     buy.removeAttribute('disabled')
                     tr.style.backgroundColor = ''
                 }
             })
-            price.addEventListener('keyup', event => {
+            price.addEventListener('input', event => {
                 rm_value = price.value * (sell.value - buy.value)
                 rm.value = set_decimal(rm_value)
                 calculate_total()
@@ -365,15 +430,87 @@
                 const subject = elem.id.replace('header-', '')
                 elem.addEventListener('click', event => sort_content(elem, subject))
             })
-            document.querySelector('#btn-add').addEventListener('click', event => {
-                const tr = build_tr()
-                document.querySelector('tbody').append(tr)
+            const date = document.querySelector('#date')
+            const buy = document.querySelector('#buy')
+            const sell = document.querySelector('#sell')
+            const unit = document.querySelector('#unit')
+            const price = document.querySelector('#price')
+            const rm = document.querySelector('#rm')
+            function calculate_rm() {
+                const unit_value = Number(unit.value)
+                const price_value = Number(price.value)
+                const action = buy.checked ? '-' : ''
+                const rm_value = unit_value * price_value
+                rm.value = `${action}RM ${set_decimal(rm_value)}`
+            }
+            buy.addEventListener('change', event => {
+                if (event.target.checked) {
+                    buy.setAttribute('checked', '')
+                    buy.checked = true
+                    sell.removeAttribute('checked')
+                    sell.checked = false
+                    calculate_rm()
+                }
             })
-            document.querySelector('#btn-remove').addEventListener('click', event => {
+            sell.addEventListener('change', event => {
+                if (event.target.checked) {
+                    sell.setAttribute('checked', '')
+                    sell.checked = true
+                    buy.removeAttribute('checked')
+                    buy.checked = false
+                    calculate_rm()
+                }
+            })
+            unit.addEventListener('input', calculate_rm)
+            price.addEventListener('input', calculate_rm)
+            price.addEventListener('focus', event => {
+                if (date.value !== "") {
+                    const address = find_active_chart();
+                    const regex = new RegExp(date.value, 'i')
+                    document.querySelectorAll('#list>option').forEach(el => el.remove())
+                    load_data(address)
+                        .then(data => {
+                            for (const history of data.filter(row => regex.test(row[0]))) {
+                                if (buy.checked) {
+                                    const opt_value = set_decimal(Number(history[1]))
+                                    const option = new Option(opt_value, opt_value)
+                                    document.querySelector('#list').appendChild(option)
+                                } else if (sell.checked) {
+                                    const opt_value = set_decimal(Number(history[2]))
+                                    const option = new Option(opt_value, opt_value)
+                                    document.querySelector('#list').appendChild(option)
+                                }
+                            }
+                        })
+                }
+            })
+            document.querySelector('#btn-add').addEventListener('click', event => {
+                if (is_small_screen) {
+                    const edit = document.querySelector('#edit-trx')
+                    delete edit.dataset.id
+                    bootstrap.Modal.getInstance(document.querySelector('#trx-data')).hide()
+                    if (bootstrap.Modal.getInstance(edit)) {
+                        bootstrap.Modal.getInstance(edit).show()
+                    } else {
+                        new bootstrap.Modal(edit).show()
+                    }
+                } else {
+                    const tr = build_tr()
+                    document.querySelector('tbody').append(tr)
+                }
+            })
+            document.querySelector('#trx-data #btn-remove').addEventListener('click', event => {
                 document.querySelectorAll('input[id^="check-"]:checked').forEach(elem => {
                     elem.closest('tr').remove()
                     calculate_total()
                 })
+            })
+            document.querySelector('#edit-trx #btn-remove').addEventListener('click', event => {
+                const id = document.querySelector('#edit-trx').dataset.id
+                document.querySelector(`tr[id="${id}"]`).remove()
+                calculate_total()
+                bootstrap.Modal.getInstance(document.querySelector('#edit-trx')).hide()
+                bootstrap.Modal.getInstance(document.querySelector('#trx-data')).show()
             })
             document.querySelector('#btn-sell').addEventListener('change', event => {
                 const bal = calculate_bal()
@@ -404,30 +541,71 @@
                 gold_settings['sell-all'] = bal!=0 && event.target.checked
                 save_item(gold_settings, 'gold_settings')
             })
+            document.querySelector('#form1').addEventListener('submit', event => {
+                event.preventDefault();
+                date.classList.remove('is-invalid')
+                if (!date.value) {
+                    date.classList.add('is-invalid')
+                }
+                unit.classList.remove('is-invalid')
+                if (!Number.isInteger(Number(unit.value)) || unit.value == 0) {
+                    unit.classList.add('is-invalid')
+                }
+                price.classList.remove('is-invalid')
+                if (price.value == 0) {
+                    price.classList.add('is-invalid')
+                }
+                if (document.querySelectorAll('#form1 .is-invalid').length == 0) {
+                    const id = document.querySelector('#edit-trx').dataset.id
+                    if (id) {
+                        const tr = document.querySelector(`tr[id="${id}"]`)
+                        tr.querySelector(`input#date-${id}`).value = date.value
+                        if (buy.checked) {
+                            tr.querySelector(`input#buy-${id}`).value = unit.value
+                        } else if (sell.checked) {
+                            tr.querySelector(`input#sell-${id}`).value = unit.value
+                        }
+                        tr.querySelector(`input#price-${id}`).value = set_decimal(Number(price.value))
+                        calculate_subtotal(tr)
+                    } else {
+                        const row = {
+                            'date': date.value,
+                            'unit': (buy.checked?1:-1)*unit.value,
+                            'price': Number(price.value)
+                        }
+                        const tr = build_tr(row)
+                        calculate_subtotal(tr)
+                        document.querySelector('tbody').append(tr)
+                    }
+                    calculate_total()
+                    bootstrap.Modal.getInstance(document.querySelector('#edit-trx')).hide()
+                    bootstrap.Modal.getInstance(document.querySelector('#trx-data')).show()
+                }
+            })
             document.querySelector('#form').addEventListener('submit', event => {
                 event.preventDefault();
                 function is_empty(elem) {
-                    return elem.value == 0 && !elem.getAttribute('disabled')
+                    return elem.value == 0 && !elem.disabled
                 }
-                document.querySelectorAll('input[id^="buy"],input[id^="sell"]').forEach(elem => {
+                document.querySelectorAll('#form input[id^="buy"],#form input[id^="sell"]').forEach(elem => {
                     elem.classList.remove('is-invalid')
                     if (!Number.isInteger(Number(elem.value)) || is_empty(elem)) {
                         elem.classList.add('is-invalid')
                     }
                 })
-                document.querySelectorAll('input[id^="price"]').forEach(elem => {
+                document.querySelectorAll('#form input[id^="price"]').forEach(elem => {
                     elem.classList.remove('is-invalid')
                     if (is_empty(elem)) {
                         elem.classList.add('is-invalid')
                     }
                 })
-                document.querySelectorAll('input[id^="date"]').forEach(elem => {
+                document.querySelectorAll('#form input[id^="date"]').forEach(elem => {
                     elem.classList.remove('is-invalid')
                     if (!elem.value) {
                         elem.classList.add('is-invalid')
                     }
                 })
-                if (document.querySelectorAll('.is-invalid').length == 0) {
+                if (document.querySelectorAll('#form .is-invalid').length == 0) {
                     gold_history = []
                     document.querySelectorAll('tbody tr').forEach(elem => {
                         gold_history.push({
@@ -436,7 +614,7 @@
                             'price': Number(elem.querySelector('input[id^="price"]').value)
                         })
                     })
-                    save_item('gold_history', gold_history)
+                    save_item(gold_history, 'gold_history')
                     render_charts()
                     bootstrap.Modal.getInstance(document.querySelector('#trx-data')).hide()
                 }
@@ -446,9 +624,55 @@
                     event.target.textContent == 'Premier Gold Account' ? premium_chart.resize() : basic_chart.resize()
                 })
             )
+            document.querySelector('#edit-trx').addEventListener('show.bs.modal', event => {
+                const rtarget = event.relatedTarget
+                if (rtarget) {
+                    const id = rtarget.dataset.id
+                    event.target.dataset.id = id
+                    date.value = document.querySelector(`input#date-${id}`).value
+                    const buy_value = document.querySelector(`input#buy-${id}`).value
+                    const sell_value = document.querySelector(`input#sell-${id}`).value
+                    if (buy_value != '') {
+                        buy.click()
+                        unit.value = buy_value
+                    } else {
+                        sell.click()
+                        unit.value = sell_value
+                    }
+                    price.value = document.querySelector(`input#price-${id}`).value
+                    document.querySelector('#edit-trx #btn-remove').classList.remove('d-none')
+                    calculate_rm()
+                } else {
+                    date.value = ''
+                    buy.click()
+                    unit.value = ''
+                    price.value = ''
+                    rm.value = ''
+                    document.querySelector('#edit-trx #btn-remove').classList.add('d-none')
+                }
+            })
+            document.querySelector('#edit-trx').addEventListener('hide.bs.modal', event => {
+                document.querySelectorAll('#form1 .is-invalid').forEach(elem => {
+                    elem.classList.remove('is-invalid')
+                })
+            })
             document.querySelector('#btn-trx-data').click()
             const max_date = (new Date()).toISOString().slice(0,10);
-            document.querySelector('#tr-lg').content.querySelector('input#date-').setAttribute('max', max_date)
+            const template = document.querySelector('#tr-lg').content
+            template.querySelector('input#date-').setAttribute('max', max_date)
+            document.querySelector('input#date').setAttribute('max', max_date)
+            if (is_small_screen) {
+                template.querySelectorAll('input.form-control').forEach(elem => {
+                    elem.classList.remove('form-control')
+                    elem.classList.add('form-control-plaintext')
+                    elem.setAttribute('readonly', '')
+                })
+                template.querySelector('input.form-check-input').classList.add('d-none')
+                document.querySelector('input#header-check').classList.add('d-none')
+                document.querySelector('#trx-data #btn-remove').classList.add('d-none')
+            } else {
+                template.querySelector('a').classList.add('d-none')
+            }
             for (const row of gold_history) {
                 const tr = build_tr(row)
                 calculate_subtotal(tr)
@@ -571,7 +795,7 @@
             let newData = [...data.slice(-1)[0]]
             newData[0] = string_date(date)
             data.push(newData)
-            if (document.body.clientWidth < 597) {
+            if (is_small_screen) {
                 option.grid = {
                     right: '20%',
                     left: '15%',
