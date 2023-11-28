@@ -1,4 +1,5 @@
 import os
+import re
 from io import StringIO
 
 import pandas as pd
@@ -41,7 +42,7 @@ def make_df(txt, item, old):
     new = (
         pd
         .read_csv(StringIO(txt))
-        .query('ITEM == @item')
+        .query('PRODUCT == @item')
         .loc[:, ['TIME', 'SELLING', 'BUYING']]
         .assign(TIME=lambda x: pd.to_datetime(x.TIME, format=r"%d/%m/%Y %H:%M"), scrape=now)
     )
@@ -126,6 +127,7 @@ def alert(basic, basic_new, premium_new):
 if __name__ == '__main__':
     premium, basic = read_data()
     txt = get_html()
+    txt = re.sub(r'ITEM,', '', txt)
     # res = requests.get(r'https://www.uob.com.my/wsm/stayinformed.do?path=gia')
     basic_new = make_df(txt, 'GOLD SAVINGS ACCOUNT', basic)
     basic_new.to_csv(basic_url, index=False)
